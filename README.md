@@ -15,7 +15,8 @@ So far code uploaded to this repository was made for :
 - concatenating data in files based on the number of chirp tables used
 - hourly to daily conversions
 - visualization of the data
-- filtering of noise 
+- filtering of noise
+
 TODO:
 - converting timestamps from seconds from... to datetime objects 
 - saving processed files as daily files (only creates plots at the moment)
