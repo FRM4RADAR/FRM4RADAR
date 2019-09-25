@@ -33,4 +33,9 @@ The following pictures show the data processing flow:
 ![Alt text](/images/averaged_data_500.png?raw=true "Averaged Height wise")
 - Averaging done on the time dimension
 ![Alt text](/images/averaged_data_1h.png?raw=true "Averaged Time wise")
+- Averaging done on the time and height simultaneously
+![Alt text](/images/00_averaged_raw.png?raw=true "Averaged Time wise")
+
+
+
 
