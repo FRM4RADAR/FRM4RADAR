@@ -1,5 +1,6 @@
 # FRM4RADAR
 A small repository for the development of a common codebase for radar data processing and visualization in python.
+For questions and ideas contact me at mihai.boldeanu@inoe.ro
 
 
 # Summary
