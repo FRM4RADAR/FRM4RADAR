@@ -10,7 +10,7 @@ So far code uploaded to this repository was made for :
 - filtering of noise 
 
 # Exmaple of data processing
-
+![Alt text](/images/00_original_data.png?raw=true "Optional Title")
 ![Original Data](www.github.com/mihaiboldeanu/FRM4RADAR/images/00_original_data.png)
 ![Filtered Data]((www.github.com/mihaiboldeanu/FRM4RADAR/images/01_filtered_data.png)
 ![Averaged height wise]((www.github.com/mihaiboldeanu/FRM4RADAR/images/averaged_data_500.png)
