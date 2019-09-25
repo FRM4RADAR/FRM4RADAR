@@ -8,3 +8,10 @@ So far code uploaded to this repository was made for :
 - hourly to daily conversions
 - visualization of the data
 - filtering of noise 
+
+# Exmaple of data processing
+
+![Original Data](username.github.com/repository/img/image.jpg)
+![Filtered Data](username.github.com/repository/img/image.jpg)
+![My image](username.github.com/repository/img/image.jpg)
+![My image](username.github.com/repository/img/image.jpg)
