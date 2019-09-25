@@ -11,7 +11,7 @@ So far code uploaded to this repository was made for :
 
 # Exmaple of data processing
 
-![Original Data](username.github.com/repository/img/image.jpg)
-![Filtered Data](username.github.com/repository/img/image.jpg)
-![My image](username.github.com/repository/img/image.jpg)
-![My image](username.github.com/repository/img/image.jpg)
+![Original Data](mihaiboldeanu.github.com/FRM4RADAR/images/00_original_data.png)
+![Filtered Data](mihaiboldeanu.github.com/FRM4RADAR/images/01_filtered_data.png)
+![Averaged height wise](mihaiboldeanu.github.com/FRM4RADAR/images/averaged_data_500.png)
+![Averaged time wise](mihaiboldeanu.github.com/FRM4RADAR/images/averaged_data_1h.png)
