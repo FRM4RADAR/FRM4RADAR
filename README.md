@@ -18,7 +18,7 @@ So far code uploaded to this repository was made for :
 - filtering of noise
 
 TODO:
-- converting timestamps from seconds from... to datetime objects 
+- converting timestamps from seconds since... to datetime objects 
 - saving processed files as daily files (only creates plots at the moment)
 - more options regarding the averaging(selecting a timestamp or height level to average around)
 - adding error handling if the averaging values are invalid
