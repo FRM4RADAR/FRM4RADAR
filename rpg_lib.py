@@ -18,7 +18,7 @@ from scipy import ndimage
 import numpy as np
 
 ### READING Function for netCDF4 files ###
-def read_rpg_netcdf(path):
+def __read_rpg_netcdf_raw(path):
     
     """
     read_rph_netcdf: takes the absolute path of a netcdf file and returns a dictionary with the content
@@ -39,9 +39,56 @@ def read_rpg_netcdf(path):
         temp_data[key] =  dataset.variables[key][:]
     dataset.close()
     return temp_data
+    
+def __read_rpg_netcdf_processed(path):
+    
+    """
+    read_rpg_netcdf_processed: takes the absolute path of a netcdf file and returns a dictionary with the content
 
+    Args:
+        path (str): Path to the netcdf file
+        
+    Returns:
+        dictionary: Returns a dictionary with netCDF variable names as keys
 
-def merge_chirp(netcdf_dict):
+    """
+    
+    
+    dataset = Dataset(path)
+    variables_in_file =  dataset.variables.keys()
+    temp_data = {}
+    for key in variables_in_file:
+        temp_data[key] =  dataset.variables[key][:]
+    dataset.close()
+    return temp_data
+    
+    
+def read_netcdf(path,processed=False):
+    file_list = os.listdir(path)
+    file_list = [file_name for file_name in file_list if (".NC" in file_name or ".nc" in file_name)]
+    daily_reflectivity = []
+    daily_time = []
+    since = "2001.01.01. 00:00:00"
+    for file_name in file_list:
+        file_path = os.path.join(path,file_name)
+        if processed:
+            data = __read_rpg_netcdf_processed(file_path)
+            range = data["range"]
+            time = data["time"]
+            reflectivity = data["Ze"]
+            
+
+        else:
+            data = __read_rpg_netcdf_raw(file_path)
+            time,range,reflectivity = __merge_chirp(temp_data)
+
+        daily_reflectivity.append(reflectivity)  
+        daily_time.append(time)
+
+    daily_reflectivity_raw = np.concatenate(daily_reflectivity)
+    daily_time = np.concatenate(daily_time)
+
+def __merge_chirp(netcdf_dict):
     
     """
     merge_chirp: takes a dictionary containing radar data and returns the concatenated chirp tables 
