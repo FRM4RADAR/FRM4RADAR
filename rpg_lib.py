@@ -11,11 +11,13 @@ Created on Mon Sep 23 09:12:35 2019
     - Cleaning noise from raw data
     - Averaging in height and time
 """
+import time
 from netCDF4 import Dataset
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from scipy import ndimage
 import numpy as np
+import os
 
 ### READING Function for netCDF4 files ###
 def __read_rpg_netcdf_raw(path):
@@ -64,8 +66,23 @@ def __read_rpg_netcdf_processed(path):
     
     
 def read_netcdf(path,processed=False):
+    """
+    read_netcdf: takes the absolute path of a netcdf file and returns the height, time and reflectivity
+
+    Args:
+        path (str): Path to the netcdf file
+        processed(boolean): if the files are raw or proccessed
+        
+    Returns:
+        time: Returns time array from netcdf file(seconds since...)
+        height: Returns the range in meters of the concatenated reflectivity array
+        reflectivity: Returns the CZE value for all the chirp tables as one array of size len(time) X len(height)
+
+    """
     file_list = os.listdir(path)
+    
     file_list = [file_name for file_name in file_list if (".NC" in file_name or ".nc" in file_name)]
+    file_list = sorted(file_list)
     daily_reflectivity = []
     daily_time = []
     since = "2001.01.01. 00:00:00"
@@ -73,20 +90,21 @@ def read_netcdf(path,processed=False):
         file_path = os.path.join(path,file_name)
         if processed:
             data = __read_rpg_netcdf_processed(file_path)
-            range = data["range"]
+            height_range = data["range"]
             time = data["time"]
             reflectivity = data["Ze"]
             
 
         else:
             data = __read_rpg_netcdf_raw(file_path)
-            time,range,reflectivity = __merge_chirp(temp_data)
+            time,height_range,reflectivity = __merge_chirp(data)
 
         daily_reflectivity.append(reflectivity)  
         daily_time.append(time)
 
     daily_reflectivity_raw = np.concatenate(daily_reflectivity)
     daily_time = np.concatenate(daily_time)
+    return daily_time,height_range,daily_reflectivity_raw
 
 def __merge_chirp(netcdf_dict):
     
@@ -174,7 +192,7 @@ def filter_rpg(data,structure=0):
     #dilated_mask = ndimage.binary_dilation(open_mask,structure = ndimage.generate_binary_structure(2, 1)) 
     close_mask = ndimage.binary_closing(open_mask,structure = ndimage.generate_binary_structure(2, 2))
     
-    
+    close_mask = ndimage.binary_dilation(close_mask,structure = ndimage.generate_binary_structure(2, 2))
     return close_mask
     
 ### Averaging in height with binning
@@ -343,4 +361,50 @@ def plot_rpg(time_array, height_array, data_array,name="test_file",title="test t
     plt.title(title)
     plt.colorbar()
     plt.savefig(name+".png")
+    plt.close()
+    
+    
+def save_netcdf(path_name, data):
+    variable_dict = data
+    
+    # Creating the netcdf file
+    if ".nc" in path_name:
+        rootgrp = Dataset(path_name, "w", format="NETCDF4")
+    else:
+        rootgrp = Dataset(path_name+".nc", "w", format="NETCDF4")
+        
+    rootgrp.description = "in case of problems contact mihai.boldeanu@inoe.ro or a doctor"
+    rootgrp.history = "Created in the Second Age by wise dwarfs and happy wizards"
+    rootgrp.source = "description file to be added properly"
+
+    
+    # Creating dimenisons
+    
+    time = rootgrp.createDimension("time", None)
+    height = rootgrp.createDimension("height", None)
+    
+    # Creating variables
+    
+    height = rootgrp.createVariable("height","i4",("height"),zlib=True)
+    time = rootgrp.createVariable("time","i4",("time"),zlib=True)
+    noise = rootgrp.createVariable("noise","f4",("time","height"),zlib=True)
+    data = rootgrp.createVariable("data","f4",("time","height"),zlib=True)
+    mask = rootgrp.createVariable("binary_mask","f4",("time","height"),zlib=True)
+    
+    height.units = "m"
+    time.units = "seconds since 2001.01.01. 00:00:00"
+    time.calendar = "gregorian"
+    
+    
+    
+    # Adding data
+    height[:] = variable_dict["height"] 
+    time[:] = variable_dict["time"] 
+    data[:] = variable_dict["data"] 
+    noise[:] = variable_dict["noise"] 
+    mask[:] = variable_dict["mask"] 
+    
+    # Closing the file
+    rootgrp.close()
+    
     
