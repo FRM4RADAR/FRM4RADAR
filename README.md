@@ -16,10 +16,12 @@ So far code uploaded to this repository was made for :
 - hourly to daily conversions
 - visualization of the data
 - filtering of noise
+- saving processed files as daily files
 
 TODO:
+- expand to differetn variables (only reflectivity filtered so far)
+- decision regarding what input variables should be kept in output files
 - converting timestamps from seconds since... to datetime objects 
-- saving processed files as daily files (only creates plots at the moment)
 - more options regarding the averaging(selecting a timestamp or height level to average around)
 - adding error handling if the averaging values are invalid
 
