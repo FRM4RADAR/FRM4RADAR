@@ -64,7 +64,35 @@ def __read_rpg_netcdf_processed(path):
     dataset.close()
     return temp_data
     
+def read_folders(path,processed=False):
+    """
+    read_folders: takes an absolute path and checks for subfolder or files
+
+    Args:
+        path (str): Path to the netcdf files/folders
+        processed(boolean): if the files are raw or proccessed
+        
+    Returns:
+        return_list : returns a list of 
+
+    """
+    folders_in_folder_list = []
+    files_in_folder_list = []
+    return_list = []
+    folder_content = os.listdir(path)
+    files_in_folder_list = [os.path.join(path,item) for item in folder_content if os.path.isfile(os.path.join(path,item))]
+    folders_in_folder_list = [os.path.join(path,item) for item in folder_content if os.path.isdir(os.path.join(path,item))]
     
+    if files_in_folder_list:
+        return_list.append(read_netcdf(path,processed))
+    for folder in folders_in_folder_list:
+        folder_path = os.path.join(path,folder)
+        print("-Found this sub-folder: " + folder_path)
+        return_list.extend(read_folders(folder_path))
+    
+    return return_list
+    
+        
 def read_netcdf(path,processed=False):
     """
     read_netcdf: takes the absolute path of a netcdf file and returns the height, time and reflectivity
@@ -82,6 +110,8 @@ def read_netcdf(path,processed=False):
     file_list = os.listdir(path)
     
     file_list = [file_name for file_name in file_list if (".NC" in file_name or ".nc" in file_name)]
+    if not file_list:
+        return None
     file_list = sorted(file_list)
     daily_reflectivity = []
     daily_time = []
@@ -93,18 +123,20 @@ def read_netcdf(path,processed=False):
             height_range = data["range"]
             time = data["time"]
             reflectivity = data["Ze"]
+            name_of_file = file_list[0].split("_")[2]+"_from_proccesed"
             
 
         else:
             data = __read_rpg_netcdf_raw(file_path)
             time,height_range,reflectivity = __merge_chirp(data)
+            name_of_file = file_list[0].split("_")[0]+"_from_raw"
 
         daily_reflectivity.append(reflectivity)  
         daily_time.append(time)
 
     daily_reflectivity_raw = np.concatenate(daily_reflectivity)
     daily_time = np.concatenate(daily_time)
-    return daily_time,height_range,daily_reflectivity_raw
+    return daily_time,height_range,daily_reflectivity_raw,name_of_file
 
 def __merge_chirp(netcdf_dict):
     
@@ -373,20 +405,20 @@ def save_netcdf(path_name, data):
     else:
         rootgrp = Dataset(path_name+".nc", "w", format="NETCDF4")
         
-    rootgrp.description = "in case of problems contact mihai.boldeanu@inoe.ro or a doctor"
-    rootgrp.history = "Created in the Second Age by wise dwarfs and happy wizards"
+    rootgrp.description = "in case of problems contact mihai.boldeanu@inoe.ro"
+    rootgrp.history = "Created in something something"
     rootgrp.source = "description file to be added properly"
 
     
     # Creating dimenisons
     
-    time = rootgrp.createDimension("time", None)
-    height = rootgrp.createDimension("height", None)
+    time = rootgrp.createDimension("time", len(variable_dict["time"] ))
+    height = rootgrp.createDimension("height", len(variable_dict["height"]))
     
     # Creating variables
-    
-    height = rootgrp.createVariable("height","i4",("height"),zlib=True)
     time = rootgrp.createVariable("time","i4",("time"),zlib=True)
+    height = rootgrp.createVariable("height","f4",("height"),zlib=True)
+    
     noise = rootgrp.createVariable("noise","f4",("time","height"),zlib=True)
     data = rootgrp.createVariable("data","f4",("time","height"),zlib=True)
     mask = rootgrp.createVariable("binary_mask","f4",("time","height"),zlib=True)
@@ -398,8 +430,9 @@ def save_netcdf(path_name, data):
     
     
     # Adding data
-    height[:] = variable_dict["height"] 
     time[:] = variable_dict["time"] 
+    height[:] = variable_dict["height"] 
+   
     data[:] = variable_dict["data"] 
     noise[:] = variable_dict["noise"] 
     mask[:] = variable_dict["mask"] 
